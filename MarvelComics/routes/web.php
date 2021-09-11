@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
+use App\Models\Comic;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,5 +17,55 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+
+  return view('searchcomics');
+});
+
+Route::get('/searchtitle', function (Request $request) {
+  $apikey = include '../publickey.php';
+  $now = time();
+  $privateKey = include '../privatekey.php';
+  $hash = md5($now . $privateKey . $apikey);
+  $title = $request->input('title');
+
+  $response = Http::get('https://gateway.marvel.com:443/v1/public/comics?ts=' . $now . '&apikey=' . $apikey . '&hash=' . $hash . '&title=' . $title );
+  $res = json_decode($response);
+  $results = $res->data->results;
+
+  return view('comics', ["comics" => $results]);
+});
+
+Route::get('/searchid', function (Request $request) {
+  $apikey = include '../publickey.php';
+  $now = time();
+  $privateKey = include '../privatekey.php';
+  $hash = md5($now . $privateKey . $apikey);
+  $id = $request->input('id');
+
+  $response = Http::get('https://gateway.marvel.com:443/v1/public/comics/' . $id . '?ts=' . $now . '&apikey=' . $apikey . '&hash=' . $hash );
+  $res = json_decode($response);
+  $results = $res->data->results;
+
+  return view('comics', ["comics" => $results]);
+});
+
+
+Route::get('/addcomic', function (Request $request) {
+
+  Comic::firstOrCreate('comics')->insert([
+    'comicid' => $request->input('id'),
+    'title' => $request->input('title'),
+    'description' => $request->input('description'),
+    'ean' => $request->input('ean'),
+    'price' => $request->input('price')
+]);
+
+  Route::redirect('/');
+});
+
+Route::get('/deletecomic', function (Request $request) {
+
+  Flight::where('comicid', $request->input('delete'))->delete();
+
+  Route::redirect('/');
 });
