@@ -1,9 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
-use App\Models\Comic;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,10 +13,27 @@ use App\Models\Comic;
 |
 */
 
+
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
 Route::get('/', function () {
 
   return view('searchcomics');
 });
+
+
+Route::get('/', function () {
+    $user = Auth::user();
+
+    if ($user) {
+      return view('searchcomics');
+    } else {
+      Route::redirect('/dashboard');
+    }
+});
+
 
 Route::get('/searchtitle', function (Request $request) {
   $apikey = include '../publickey.php';
