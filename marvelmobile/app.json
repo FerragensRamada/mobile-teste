@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "marvelmovile",
+    "slug": "marvelmovile",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "marvelmovile"
+}
